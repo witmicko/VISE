@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main_window.ui'
+# Form implementation generated from reading ui file 'main_window2.ui'
 #
 # Created by: PyQt4 UI code generator 4.11.4
 #
@@ -22,19 +22,14 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
-class Ui_MainWindow(QtCore.QObject):
-    def __init__(self, parent = None):
-        super(Ui_MainWindow, self).__init__(parent)
-        self.image = QtGui.QImage()
-        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
-
+class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(800, 600)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.verticalLayoutWidget = QtGui.QWidget(self.centralwidget)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(470, 150, 306, 80))
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(60, 290, 306, 80))
         self.verticalLayoutWidget.setObjectName(_fromUtf8("verticalLayoutWidget"))
         self.verticalLayout = QtGui.QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
@@ -99,8 +94,11 @@ class Ui_MainWindow(QtCore.QObject):
         self.horizontalLayout_6.addWidget(self.trace_off)
         self.verticalLayout.addLayout(self.horizontalLayout_6)
         self.image_view = QtGui.QMdiArea(self.centralwidget)
-        self.image_view.setGeometry(QtCore.QRect(10, 20, 441, 431))
+        self.image_view.setGeometry(QtCore.QRect(60, 20, 601, 251))
         self.image_view.setObjectName(_fromUtf8("image_view"))
+        self.textBrowser = QtGui.QTextBrowser(self.centralwidget)
+        self.textBrowser.setGeometry(QtCore.QRect(60, 390, 721, 181))
+        self.textBrowser.setObjectName(_fromUtf8("textBrowser"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
@@ -111,14 +109,14 @@ class Ui_MainWindow(QtCore.QObject):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        QtCore.QObject.connect(MainWindow, QtCore.SIGNAL(_fromUtf8("iconSizeChanged(QSize)")), self.image_view.update)
-        QtCore.QObject.connect(self.preview_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.preview_off.toggle)
-        QtCore.QObject.connect(self.preview_off, QtCore.SIGNAL(_fromUtf8("clicked()")), self.preview_on.toggle)
-        QtCore.QObject.connect(self.can_bus_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.can_bus_off.toggle)
-        QtCore.QObject.connect(self.can_bus_off, QtCore.SIGNAL(_fromUtf8("clicked()")), self.can_bus_on.toggle)
-        QtCore.QObject.connect(self.trace_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.trace_off.toggle)
-        QtCore.QObject.connect(self.trace_off, QtCore.SIGNAL(_fromUtf8("clicked()")), self.trace_on.toggle)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        # QtCore.QObject.connect(self.preview_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.preview_off.toggle)
+        # QtCore.QObject.connect(self.preview_off, QtCore.SIGNAL(_fromUtf8("clicked()")), self.preview_on.toggle)
+        # QtCore.QObject.connect(self.can_bus_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.can_bus_off.toggle)
+        # QtCore.QObject.connect(self.can_bus_off, QtCore.SIGNAL(_fromUtf8("clicked()")), self.can_bus_on.toggle)
+        # QtCore.QObject.connect(self.trace_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.trace_off.toggle)
+        # QtCore.QObject.connect(self.trace_off, QtCore.SIGNAL(_fromUtf8("clicked()")), self.trace_on.toggle)
+        # QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
@@ -132,10 +130,6 @@ class Ui_MainWindow(QtCore.QObject):
         self.trace_on.setText(_translate("MainWindow", "on", None))
         self.trace_off.setText(_translate("MainWindow", "off", None))
 
-    def paintEvent(self, event):
-        painter = QtGui.QPainter(self)
-        painter.drawImage(0,0, self.image)
-        self.image = QtGui.QImage()
 
     @QtCore.pyqtSlot(QtGui.QImage)
     def set_image(self, image):
@@ -146,3 +140,13 @@ class Ui_MainWindow(QtCore.QObject):
         if image.size() != self.size():
             self.setFixedSize(image.size())
         self.update()
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    MainWindow = QtGui.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
+

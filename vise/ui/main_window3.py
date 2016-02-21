@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main_window.ui'
+# Form implementation generated from reading ui file 'main_window2.ui'
 #
 # Created by: PyQt4 UI code generator 4.11.4
 #
@@ -22,7 +22,12 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(QtCore.QObject):
+    def __init__(self, parent = None):
+        super(Ui_MainWindow, self).__init__(parent)
+        self.image = QtGui.QImage()
+        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(800, 600)
@@ -106,6 +111,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
+        QtCore.QObject.connect(MainWindow, QtCore.SIGNAL(_fromUtf8("iconSizeChanged(QSize)")), self.image_view.update)
         QtCore.QObject.connect(self.preview_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.preview_off.toggle)
         QtCore.QObject.connect(self.preview_off, QtCore.SIGNAL(_fromUtf8("clicked()")), self.preview_on.toggle)
         QtCore.QObject.connect(self.can_bus_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.can_bus_off.toggle)
@@ -126,3 +132,27 @@ class Ui_MainWindow(object):
         self.trace_on.setText(_translate("MainWindow", "on", None))
         self.trace_off.setText(_translate("MainWindow", "off", None))
 
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.drawImage(0,0, self.image)
+        self.image = QtGui.QImage()
+
+    @QtCore.pyqtSlot(QtGui.QImage)
+    def set_image(self, image):
+        if image.isNull():
+            print("Viewer Dropped frame!")
+
+        self.image = image
+        if image.size() != self.size():
+            self.setFixedSize(image.size())
+        self.update()
+
+    @QtCore.pyqtSlot(QtGui.QImage)
+    def setImage(self, image):
+        if image.isNull():
+            print("Viewer Dropped frame!")
+
+        self.image = image
+        if image.size() != self.size():
+            self.setFixedSize(image.size())
+        self.update()

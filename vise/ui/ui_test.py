@@ -2,10 +2,10 @@ import sys
 
 from PyQt4 import QtGui
 
-from vise.ui import main_window
+from vise.ui import main_window3
 
 
-class ExampleApp(QtGui.QMainWindow, main_window.Ui_MainWindow):
+class ExampleApp(QtGui.QMainWindow, main_window3.Ui_MainWindow):
     def __init__(self, parent=None):
         super(ExampleApp, self).__init__(parent)
         self.setupUi(self)

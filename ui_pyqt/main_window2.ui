@@ -17,8 +17,8 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>470</x>
-      <y>150</y>
+      <x>60</x>
+      <y>290</y>
       <width>306</width>
       <height>80</height>
      </rect>
@@ -197,10 +197,20 @@
    <widget class="QMdiArea" name="image_view">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>60</x>
       <y>20</y>
-      <width>441</width>
-      <height>431</height>
+      <width>601</width>
+      <height>251</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="textBrowser">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>390</y>
+      <width>721</width>
+      <height>181</height>
      </rect>
     </property>
    </widget>
