@@ -16,15 +16,18 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName(_fromUtf8("MainWindow"))
+        # MainWindow.setObjectName(_fromUtf8("MainWindow"))
+        MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
@@ -93,9 +96,19 @@ class Ui_MainWindow(object):
         self.trace_off.setObjectName(_fromUtf8("trace_off"))
         self.horizontalLayout_6.addWidget(self.trace_off)
         self.verticalLayout.addLayout(self.horizontalLayout_6)
-        self.image_view = QtGui.QMdiArea(self.centralwidget)
-        self.image_view.setGeometry(QtCore.QRect(60, 20, 601, 251))
-        self.image_view.setObjectName(_fromUtf8("image_view"))
+
+        #image view
+        self.group_box = QtGui.QGroupBox(self.centralwidget)
+        self.group_box.setGeometry(QtCore.QRect(60, 20, 601, 251))
+        self.group_box.setObjectName(_fromUtf8("group_box"))
+        self.image_view = QtGui.QLabel(self.group_box)
+        self.image_view.setGeometry(QtCore.QRect(0, 0, 601, 251))
+        self.image_view.setFrameShadow(QtGui.QFrame.Raised)
+        self.image_view.setObjectName(_fromUtf8("label"))
+        self.image_view.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
+
+
+        #trace
         self.textBrowser = QtGui.QTextBrowser(self.centralwidget)
         self.textBrowser.setGeometry(QtCore.QRect(60, 390, 721, 181))
         self.textBrowser.setObjectName(_fromUtf8("textBrowser"))
@@ -109,13 +122,16 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        # QtCore.QObject.connect(self.preview_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.preview_off.toggle)
-        # QtCore.QObject.connect(self.preview_off, QtCore.SIGNAL(_fromUtf8("clicked()")), self.preview_on.toggle)
-        # QtCore.QObject.connect(self.can_bus_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.can_bus_off.toggle)
-        # QtCore.QObject.connect(self.can_bus_off, QtCore.SIGNAL(_fromUtf8("clicked()")), self.can_bus_on.toggle)
-        # QtCore.QObject.connect(self.trace_on, QtCore.SIGNAL(_fromUtf8("clicked()")), self.trace_off.toggle)
-        # QtCore.QObject.connect(self.trace_off, QtCore.SIGNAL(_fromUtf8("clicked()")), self.trace_on.toggle)
-        # QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        # slots and connections
+        self.preview_on.clicked.connect(self.preview_off.toggle)
+        self.preview_off.clicked.connect(self.preview_on.toggle)
+
+        self.can_bus_on.clicked.connect(self.can_bus_off.toggle)
+        self.can_bus_off.clicked.connect(self.can_bus_on.toggle)
+
+        self.trace_on.clicked.connect(self.trace_off.toggle)
+        self.trace_off.clicked.connect(self.trace_on.toggle)
 
 
     def retranslateUi(self, MainWindow):
@@ -130,23 +146,34 @@ class Ui_MainWindow(object):
         self.trace_on.setText(_translate("MainWindow", "on", None))
         self.trace_off.setText(_translate("MainWindow", "off", None))
 
+    # def paintEvent(self, event):
+    #     painter = QtGui.QPainter(self)
+    #     painter.drawImage(0,0, self.image)
+    #     self.image = QtGui.QImage()
 
     @QtCore.pyqtSlot(QtGui.QImage)
     def set_image(self, image):
+
         if image.isNull():
             print("Viewer Dropped frame!")
 
-        self.image = image
-        if image.size() != self.size():
-            self.setFixedSize(image.size())
-        self.update()
+        self.image_view.setPixmap(QtGui.QPixmap.fromImage(image))
+        # if image.size() != self.size():
+        #     self.setFixedSize(image.size())
+        # self.update()
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.drawImage(0,0, self.image)
+        self.image = QtGui.QImage()
+
 
 if __name__ == "__main__":
     import sys
+
     app = QtGui.QApplication(sys.argv)
     MainWindow = QtGui.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-

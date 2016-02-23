@@ -11,20 +11,20 @@ from PyQt4 import QtCore, QtGui
 
 class CameraDevice(QtCore.QObject):
     video_signal = QtCore.pyqtSignal(QtGui.QImage)
+    ui_preview = False
 
 
     def __init__(self, parent=None):
         super(CameraDevice, self).__init__(parent)
         self.camera = cv2.VideoCapture(0)
-        # self.res_x = settings['camera']['res_x']
-        # self.res_y = settings['camera']['res_y']
-        # self.fps = settings['camera']['fps']
-        # self._id = settings['camera']['id']
-        # self.capture = cv2.VideoCapture(self._id)
-        # self.set_resolution(self.res_x, self.res_y)
-        # self.set_framerate(self.fps)
-        # self.buffer = []
-        # self.capture_thread = None
+        self.res_x = settings['camera']['res_x']
+        self.res_y = settings['camera']['res_y']
+        self.fps = settings['camera']['fps']
+        self._id = settings['camera']['id']
+        self.capture = cv2.VideoCapture(self._id)
+        self.set_resolution(self.res_x, self.res_y)
+        self.set_framerate(self.fps)
+        self.buffer = []
 
     def __str__(self):
         return 'Camera: ' \
@@ -82,20 +82,34 @@ class CameraDevice(QtCore.QObject):
 
         run_video = True
         while run_video:
+            # print("frame")
             ret, image = self.camera.read()
+            self.buffer.append(image)
 
-            color_swapped_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            color_swapped_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            if self.ui_preview:
+                color_swapped_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-            height, width, _ = color_swapped_image.shape
+                height, width, _ = color_swapped_image.shape
 
-            qt_image = QtGui.QImage(color_swapped_image.data,
-                                    width,
-                                    height,
-                                    color_swapped_image.strides[0],
-                                    QtGui.QImage.Format_RGB888)
+                qt_image = QtGui.QImage(color_swapped_image.data,
+                                        width,
+                                        height,
+                                        color_swapped_image.strides[0],
+                                        QtGui.QImage.Format_RGB888)
 
-            self.video_signal.emit(qt_image)
+                self.video_signal.emit(qt_image)
+            time.sleep(0.3)
+
+    @QtCore.pyqtSlot()
+    def preview_on(self):
+        print("on")
+        self.ui_preview = True
+
+    @QtCore.pyqtSlot()
+    def preview_off(self):
+        print("off")
+        self.ui_preview = False
+
 
     def capture(self):
         """
@@ -106,30 +120,3 @@ class CameraDevice(QtCore.QObject):
         self.capture_thread.daemon = True
         self.capture_thread.start()
 
-    @QtCore.pyqtSlot()
-    def capture_no_thread(self):
-        """
-        captures frames into the video buffer, meant to be ran as a thread
-        :return:
-        """
-
-        run_video = True
-        while run_video:
-            ret, image = self.camera.read()
-
-            color_swapped_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-            height, width, _ = color_swapped_image.shape
-
-            qt_image = QtGui.QImage(color_swapped_image.data,
-                                    width,
-                                    height,
-                                    color_swapped_image.strides[0],
-                                    QtGui.QImage.Format_RGB888)
-
-            self.video_signal.emit(qt_image)
-
-# cam = CameraDevice()
-# cam.capture_in_thread()
-# print("sdsd")
-# # time.sleep(20)
