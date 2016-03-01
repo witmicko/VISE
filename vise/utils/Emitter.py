@@ -33,7 +33,7 @@ class Emitter(QObject, Thread):
                                             height,
                                             color_swapped_image.strides[0],
                                             QtGui.QImage.Format_RGB888)
-                    self._emit('data(QImage)',qt_image)
+                    self._emit('data(QImage)', qt_image)
 
             except EOFError:
                 break

@@ -4,12 +4,14 @@ import cv2
 import time
 from threading import Thread
 
-from multiprocessing import Process
+from multiprocessing import Process,Pipe
 
 from config.config import settings
 
 from PyQt4 import QtCore, QtGui
 from timeit import default_timer as timer
+
+from vise.utils.VisionEmitter import VisionEmitter
 
 
 class CameraDevice(Process):
@@ -17,11 +19,12 @@ class CameraDevice(Process):
     video_signal = 'data(PyQt_PyObject)'
     ui_preview = False
 
-    def __init__(self, transport, queue, daemon=True):
+    def __init__(self, pipe):
         Process.__init__(self)
-        self.daemon = daemon
-        self.transport = transport
-        self.data_from_mother = queue
+        # self.transport = child_pipe
+        self.emitter = VisionEmitter(pipe)
+        self.emitter.daemon = True
+        self.emitter.start()
 
         # self.camera = cv2.VideoCapture(0)
         self.res_x = settings['camera']['res_x']
@@ -31,17 +34,20 @@ class CameraDevice(Process):
 
         # self.set_resolution(self.res_x, self.res_y)
         # self.set_framerate(self.fps)
-        self.buffer = []
+        # self.buffer = []
+    def __reduce__(self):
+          return self.__class__, (self.emitter.pipe2,)
 
     def emit_to_mother(self, signature, args=None):
-        self.transport.send((signature, args))
+        # self.transport.send((signature, args))
+        self.emitter.send(signature, args)
 
     def start_video(self):
         camera = cv2.VideoCapture(0)
         run_video = True
         while run_video:
             ret, image = camera.read()
-            self.buffer.append(image)
+            # self.buffer.append(image)
 
             self.emit_to_mother('data(QImage)', image)
 

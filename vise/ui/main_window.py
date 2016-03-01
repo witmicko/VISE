@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'main_window2.ui'
-#
-# Created by: PyQt4 UI code generator 4.11.4
-#
-# WARNING! All changes made in this file will be lost!
 import cv2
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import SIGNAL
+
+from vise.utils.Emitter import Emitter
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -26,10 +22,9 @@ except AttributeError:
 
 
 class Ui_MainWindow(QtCore.QObject):
-    def __init__(self, queue, emitter, parent=None):
-        super(Ui_MainWindow,self).__init__(parent)
-        self.data_to_child = queue
-        self.emitter = emitter
+    def __init__(self, mother_pipe, parent=None):
+        super(Ui_MainWindow, self).__init__(parent)
+        self.emitter = Emitter(mother_pipe)
         self.emitter.daemon = True
         self.emitter.start()
 
@@ -133,6 +128,7 @@ class Ui_MainWindow(QtCore.QObject):
 
         # slots and connections
         self.preview_on.clicked.connect(self.preview_off.toggle)
+        self.preview_on.clicked.connect(self.test)
         self.preview_off.clicked.connect(self.preview_on.toggle)
 
         self.can_bus_on.clicked.connect(self.can_bus_off.toggle)
