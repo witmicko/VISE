@@ -170,10 +170,13 @@ class Ui_MainWindow(QtCore.QObject):
         if qt_image.isNull():
             print("Viewer Dropped frame!")
 
-        self.image_view.setPixmap(QtGui.QPixmap.fromImage(qt_image))
-        # if image.size() != self.size():
-        #     self.setFixedSize(image.size())
-        # self.update()
+        pixmap = QtGui.QPixmap.fromImage(qt_image)
+        size = self.image_view.size()
+        width = size.width()
+        height = size.height()
+        # print(width)
+        pixmap_scaled = pixmap.scaled(width, height, QtCore.Qt.KeepAspectRatioByExpanding)
+        self.image_view.setPixmap(pixmap_scaled)
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
