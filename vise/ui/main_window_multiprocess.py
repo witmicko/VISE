@@ -5,9 +5,8 @@
 # Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
-import cv2
+
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import SIGNAL
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -25,14 +24,7 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 
-class Ui_MainWindow(QtCore.QObject):
-    def __init__(self, queue, emitter, parent=None):
-        super(Ui_MainWindow,self).__init__(parent)
-        self.data_to_child = queue
-        self.emitter = emitter
-        self.emitter.daemon = True
-        self.emitter.start()
-
+class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         # MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.setObjectName("MainWindow")
@@ -141,10 +133,6 @@ class Ui_MainWindow(QtCore.QObject):
         self.trace_on.clicked.connect(self.trace_off.toggle)
         self.trace_off.clicked.connect(self.trace_on.toggle)
 
-        self.connect(self.emitter, SIGNAL('data(QImage)'), self.set_image)
-
-        # self.connect(self.emitter, SIGNAL('data(int)'), self.set_image)
-        # self.connect(self.emitter, SIGNAL('data(int)'), self.test)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
@@ -162,15 +150,14 @@ class Ui_MainWindow(QtCore.QObject):
     #     painter = QtGui.QPainter(self)
     #     painter.drawImage(0,0, self.image)
     #     self.image = QtGui.QImage()
-    def test(self,int):
-        print(int)
 
-    def set_image(self, qt_image):
-        print("set Image")
-        if qt_image.isNull():
+    @QtCore.pyqtSlot(QtGui.QImage)
+    def set_image(self, image):
+
+        if image.isNull():
             print("Viewer Dropped frame!")
 
-        self.image_view.setPixmap(QtGui.QPixmap.fromImage(qt_image))
+        self.image_view.setPixmap(QtGui.QPixmap.fromImage(image))
         # if image.size() != self.size():
         #     self.setFixedSize(image.size())
         # self.update()
