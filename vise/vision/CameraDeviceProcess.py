@@ -9,6 +9,7 @@ from multiprocessing import Process
 from config.config import settings
 
 from PyQt4 import QtCore, QtGui
+from timeit import default_timer as timer
 
 
 class CameraDevice(Process):
