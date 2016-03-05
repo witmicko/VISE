@@ -128,7 +128,10 @@ class Ui_MainWindow(QtCore.QObject):
 
         # slots and connections
         self.preview_on.clicked.connect(self.preview_off.toggle)
-        self.preview_on.clicked.connect(self.test)
+        self.preview_on.toggled.connect(self.preview_toggle)
+
+
+
         self.preview_off.clicked.connect(self.preview_on.toggle)
 
         self.can_bus_on.clicked.connect(self.can_bus_off.toggle)
@@ -138,7 +141,6 @@ class Ui_MainWindow(QtCore.QObject):
         self.trace_off.clicked.connect(self.trace_on.toggle)
 
         self.connect(self.emitter, SIGNAL('data(QImage)'), self.set_image)
-
         # self.connect(self.emitter, SIGNAL('data(int)'), self.set_image)
         # self.connect(self.emitter, SIGNAL('data(int)'), self.test)
 
@@ -158,11 +160,12 @@ class Ui_MainWindow(QtCore.QObject):
     #     painter = QtGui.QPainter(self)
     #     painter.drawImage(0,0, self.image)
     #     self.image = QtGui.QImage()
-    def test(self,int):
-        print(int)
+
+    def preview_toggle(self, preview_on):
+        self.emitter.send("preview(bool)", preview_on)
 
     def set_image(self, qt_image):
-        print("set Image")
+        # print("set Image")
         if qt_image.isNull():
             print("Viewer Dropped frame!")
 

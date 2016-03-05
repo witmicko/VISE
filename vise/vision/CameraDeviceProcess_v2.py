@@ -3,24 +3,22 @@ import os
 import atexit
 import cv2
 import time
-from threading import Thread, Event
+from threading import Thread
 
 from multiprocessing import Process,Pipe
-
-from PyQt4.QtCore import SIGNAL
 
 from config.config import settings
 
 from PyQt4 import QtCore, QtGui
+from timeit import default_timer as timer
 
 from vise.utils.VisionEmitter import VisionEmitter
 
 
-class CameraDevice(QtCore.QProcess):
+class CameraDevice(Process):
     # video_signal = QtCore.pyqtSignal(QtGui.QImage)
     video_signal = 'data(PyQt_PyObject)'
     ui_preview = False
-
 
     def __init__(self, pipe):
         Process.__init__(self)
@@ -30,23 +28,15 @@ class CameraDevice(QtCore.QProcess):
         self.emitter.daemon = True
         self.emitter.start()
 
-        # self.camera = cv2.VideoCapture(0)
-        # self.camera = None
+        self.camera = cv2.VideoCapture(0)
         self.res_x = settings['camera']['res_x']
         self.res_y = settings['camera']['res_y']
         self.fps = settings['camera']['fps']
         self._id = settings['camera']['id']
         self.stopped = False
-        self.preview_on = True
-        self.pool = Event()
-        # self.set_resolution(self.res_x, self.res_y)
-        # self.set_framerate(self.fps)
+        self.set_resolution(self.res_x, self.res_y)
+        self.set_framerate(self.fps)
         # self.buffer = []
-
-        self.connect(self.emitter, SIGNAL('preview'), self.test)
-
-    def test(self, xxx):
-        print(xxx)
 
     def __reduce__(self):
         return self.__class__, (self.emitter.pipe,)
@@ -55,53 +45,25 @@ class CameraDevice(QtCore.QProcess):
         self.emitter.send(signature, args)
 
     def start_video(self):
-        # self.camera = cv2.VideoCapture(0)
-        # self.camera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, self.res_x)
-        # self.camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, self.res_y)
-        # self.camera.set(cv2.cv.CV_CAP_PROP_FPS, self.fps)
-        camera = cv2.VideoCapture(0)
-        camera.set(cv2.CAP_PROP_FRAME_WIDTH, self.res_x)
-        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, self.res_y)
-        camera.set(cv2.CAP_PROP_FPS, self.fps)
         print("start video")
-        while not self.pool.wait(timeout=0.100):
-            # print(self.stopped)
-            ret, image = camera.read()
+        while True:
+            ret, image = self.camera.read()
             # ret, image = self.camera.read()
-            # print(ret)
-            # Our operations on the frame come here
-            # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-            # Display the resulting frame
-            # cv2.imshow('frame',gray)
-            # if cv2.waitKey(1) & 0xFF == ord('q'):
-            #     break
             # self.buffer.append(image)
-            if self.preview_on:
-                self.emit_to_mother('data(QImage)', image)
+            self.emit_to_mother('data(QImage)', image)
             time.sleep(0.01)
             if self.stopped:
                 print("stopped")
                 break
 
         print("releasing")
-        camera.release
+        self.camera.release
 
     def run(self):
-        # self.start_video()
-        # t = Thread(target=self.start_video)
-        # t.daemon = True
-        # t.start()
-
-        while not self.pool.wait(timeout=0.100):
-            pass
-            # time.sleep(0.100)
-
+        self.start_video()
 
     def release_cam(self):
         print("release_cam")
-        # dd = self.camera.isOpened
-        # print(dd)
         # cc = cv2.VideoCapture(0)
         # dd = cc.release
         # self.stopped = True
@@ -164,9 +126,10 @@ class CameraDevice(QtCore.QProcess):
         print("Estimated frames per second : {0}".format(fps))
         self.capture.release()
 
-    def preview_toggle(self, preview_on):
-        print("on", preview_on)
-        self.preview_on = preview_on
+    @QtCore.pyqtSlot()
+    def preview_on(self):
+        print("on")
+        self.ui_preview = True
 
     @QtCore.pyqtSlot()
     def preview_off(self):

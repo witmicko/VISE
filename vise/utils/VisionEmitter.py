@@ -1,5 +1,5 @@
 from PyQt4 import QtGui
-from threading import Thread
+from threading import Thread, Event
 from multiprocessing import Pipe
 
 import cv2
@@ -10,20 +10,21 @@ class VisionEmitter(QObject, Thread):
     def __init__(self, pipe, parent=None):
         QObject.__init__(self, parent)
         Thread.__init__(self)
-        self.pipe2 = pipe
+        self.pipe = pipe
+        self.pool = Event()
 
     def _emit(self, signature, args=None):
-        # print("emit ",signature, args)
-        if args:
-            self.emit(SIGNAL(signature), args)
-        else:
-            self.emit(SIGNAL(signature))
+        print("_emit ", signature, args)
+        # self.emit(SIGNAL(signature), args)
+        self.emit(SIGNAL('preview'))
 
     def run(self):
-        while True:
+        while not self.pool.wait(timeout=0.500):
             try:
-                signature, data = self.pipe2.recv()
-                print(signature, data)
+                signature, data = self.pipe.recv()
+                # print('vision emitter recv', signature, data)
+                if signature == "preview(bool)":
+                    self._emit('preview', "ghj")
 
             except EOFError:
                 break
@@ -31,4 +32,7 @@ class VisionEmitter(QObject, Thread):
                 # self._emit(*signature)
 
     def send(self, signature, data):
-        self.pipe2.send((signature, data))
+        try:
+            self.pipe.send((signature, data))
+        except BrokenPipeError:
+            pass
